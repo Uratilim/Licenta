@@ -1,0 +1,28 @@
+<!-- row_layout.xml -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <!-- ImageView for the stock image (optional) -->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/stock_image"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="Book Cover"/>
+
+    <!-- TextView for the book title -->
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginStart="16dp"/>
+
+</LinearLayout>
