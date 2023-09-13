@@ -1,18 +1,18 @@
 package com.example.myapplication;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,12 +36,10 @@ public class SearchActivity extends AppCompatActivity {
     private ArrayAdapter<Book> autoCompleteAdapter;
     private AutoCompleteTextView autoCompleteTextView;
     private List<Book> books;
-    private RecyclerView recyclerView;
-    private Button previousButton;
-    private Button nextButton;
     private int currentPage = 1;
     private int totalSearchPages;
     private int totalSearchResults;
+    private String query;
 
 
     private static final int RESULTS_PER_PAGE = 10;
@@ -74,21 +72,14 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
 
         // Create an ApiService instance with the custom base URL
-        apiService = createApiService(BASE_URL);
-
+        apiService = createApiService(BASE_URL); // Initialize your ApiService instance here
+        query = getIntent().getStringExtra("query");
         // Initialize the AutoCompleteTextView
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView); // Corrected this line
         autoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
         autoCompleteTextView.setAdapter(autoCompleteAdapter);
 
         // Set the item click listener for AutoCompleteTextView
-        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Book selectedBook = (Book) parent.getItemAtPosition(position);
-                navigateToBookPage(selectedBook.getBookid()); // Pass the book ID
-            }
-        });
 
         Button searchButton = findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
@@ -99,30 +90,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
-        recyclerView = findViewById(R.id.recyclerView);
-        previousButton = findViewById(R.id.previousButton);
-        nextButton = findViewById(R.id.nextButton);
-
-        // Set click listeners for pagination buttons
-        previousButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentPage > 1) {
-                    currentPage--;
-                    String query = autoCompleteTextView.getText().toString(); // Get the search query
-
-                }
-            }
-        });
-
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                currentPage++;
-                String query = autoCompleteTextView.getText().toString(); // Get the search query
-                performSearch(query);
-            }
-        });
+//        recyclerView = findViewById(R.id.recyclerView);
     }
 
     private void performSearch(String query) {
@@ -186,6 +154,7 @@ public class SearchActivity extends AppCompatActivity {
 
                             Log.d("PARSE_JSON", "total pagini" + totalSearchPages);
                             // Call the parseJsonResponse method with the JSONArray
+                            Log.d(TAG, "doInBackground: booklist" + jsonArray);
                             List<Book> books = parseJsonResponse(jsonArray);
                             Log.d("PARSE_JSON", "aici am fost" + books);
                             return new SearchResult(books, totalSearchPages);
@@ -228,23 +197,8 @@ public class SearchActivity extends AppCompatActivity {
                     showSearchResults(searchResults);
 
                     totalSearchResults = searchResults.size();
-                    // Calculate the total number of pages
-
                     Log.d("DEBUG", "Previous Button Visibility: " + (currentPage > 1));
                     Log.d("DEBUG", "Next Button Visibility: " + (currentPage < totalSearchPages));
-
-                    // Update the visibility of "Next" and "Previous" buttons
-                    if (currentPage > 1) {
-                        previousButton.setVisibility(View.VISIBLE);
-                    } else {
-                        previousButton.setVisibility(View.GONE);
-                    }
-
-                    if (currentPage < totalSearchPages) {
-                        nextButton.setVisibility(View.VISIBLE);
-                    } else {
-                        nextButton.setVisibility(View.GONE);
-                    }
                 } else {
                     showMessage("No books found");
                 }
@@ -269,9 +223,11 @@ public class SearchActivity extends AppCompatActivity {
                 String name = bookObject.optString("name", "Unknown");
                 float price = (float) bookObject.optDouble("price", -1.0);
                 String link = bookObject.optString("link", "");
+                Log.d(TAG, "parseJsonResponse: " + bookId);
                 if (bookId != -1) {
                     // Only add the item if bookId is present
                     Book book = new Book(name, link, price, bookId);
+                    Log.d(TAG, "parseJsonResponse: "+ book.getName());
                     books.add(book);
                 } else {
                     // Log a message for items with missing bookId
@@ -281,50 +237,31 @@ public class SearchActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d(TAG, "parseJsonResponse: " + books.get(0));
         return books;
     }
 
 
-
-
-
-
-
-
-    // Rest of your SearchActivity methods...
 
     private void showMessage(String message) {
         Toast.makeText(SearchActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 
     private void showSearchResults(List<Book> searchResults) {
-//        Log.d("PARSE_JSON", "ecranpopup" + searchResults.get(0).getName());
-//        Intent intent = new Intent(SearchActivity.this, SearchResultsActivity.class);
-//        intent.putParcelableArrayListExtra("searchResults", new ArrayList<Book>(searchResults) );
-//
-//        // Pass the search query to the SearchResultsActivity
+        Log.d(TAG, "showSearchResults: clicked");
+        Intent intent = new Intent(SearchActivity.this, SearchResultsActivity.class);
 
-//
-//
-//        startActivity(intent);
-
-        Intent intent = new Intent(getApplicationContext(),SearchResultsActivity.class);
+        // Pass the searchResults list
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("searchResults", new ArrayList<Book>(searchResults));
-        //intent.putExtras(bundle);
         intent.putExtras(bundle);
+
+        // Pass the search query
+        intent.putExtra("query", query);
+
         startActivity(intent);
     }
 
-    private void navigateToBookPage(int bookId) {
-        Intent intent = new Intent(SearchActivity.this, BookPageActivity.class);
-        intent.putExtra("bookId", bookId); // Pass the book ID
-        startActivity(intent);
-    }
 
-    private void navigateToSearchResults() {
-        Intent intent = new Intent(SearchActivity.this, SearchResultsActivity.class);
-        intent.putParcelableArrayListExtra("searchResults", new ArrayList<>(books));
-        startActivity(intent);
-    }
+
 }

@@ -24,7 +24,7 @@ public class Book implements Parcelable {
         return booklink;
     }
 
-    public float getPrice() {
+    public Float getPrice() {
         return price;
     }
 

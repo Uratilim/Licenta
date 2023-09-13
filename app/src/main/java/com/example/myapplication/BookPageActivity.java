@@ -1,6 +1,9 @@
 package com.example.myapplication;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -32,7 +35,7 @@ public class BookPageActivity extends AppCompatActivity {
 
     private int selectedBookId; // Updated to store the book ID
     private ImageView imageViewBook;
-    private TextView textViewBookName;
+    private TextView bookNameTextView, okianPriceTextView;
     private LinearLayout linearLayoutStores;
 
     @Override
@@ -40,6 +43,10 @@ public class BookPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_page);
 
+
+        Bundle bundle = getIntent().getExtras();
+        Book bookPrint  = bundle.getParcelable("bookprint");
+        Log.d(TAG, "onCreate: array list = " + bookPrint);
         // Receive the book ID
         selectedBookId = getIntent().getIntExtra("bookId", -1); // -1 is a default value if the key is not found
 
@@ -109,16 +116,11 @@ public class BookPageActivity extends AppCompatActivity {
     }
 
     private void initializeUI(Book book) {
-        // Initialize UI elements
-        imageViewBook = findViewById(R.id.imageViewBook);
-        textViewBookName = findViewById(R.id.textViewBookName);
-        linearLayoutStores = findViewById(R.id.linearLayoutStores);
 
-        // Update the UI with book details
-        imageViewBook.setImageResource(R.drawable.book_placeholder); // Replace with actual image
-        textViewBookName.setText(book.getName());
+        bookNameTextView = findViewById(R.id.bookNameTextView);
+        bookNameTextView.setText(book.getName());
+        //okianPriceTextView.setText(book.getPrice());
 
-        // You can implement loading and displaying store information here if needed
     }
 
     private void getBookInformationFromDatabase(String bookName) {
@@ -186,8 +188,7 @@ public class BookPageActivity extends AppCompatActivity {
 
     private void updateUI(List<Store> storeList) {
         // Update the UI with the retrieved information
-        imageViewBook.setImageResource(R.drawable.book_placeholder); // Replace with actual image
-        textViewBookName.setText("Book Name"); // Set the book name here
+        bookNameTextView.setText("Book Name"); // Set the book name here
 
         // Inflate and add store views to the layout
         LayoutInflater inflater = LayoutInflater.from(this);
