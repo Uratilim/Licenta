@@ -48,12 +48,12 @@ public class BookPageActivity extends AppCompatActivity {
         Book bookPrint  = bundle.getParcelable("bookprint");
         Log.d(TAG, "onCreate: array list = " + bookPrint);
         // Receive the book ID
-        selectedBookId = getIntent().getIntExtra("bookId", -1); // -1 is a default value if the key is not found
+        //selectedBookId = getIntent().getIntExtra("bookId", -1); // -1 is a default value if the key is not found
 
-        if (selectedBookId != -1) {
+        if (bookPrint.getBookid() != -1) {
             // Fetch book details from your data source based on the book ID
-            Book book = fetchBookDetailsById(selectedBookId); // Updated method call
-            initializeUI(book);
+            //Book book = fetchBookDetailsById(selectedBookId); // Updated method call
+            initializeUI(bookPrint);
         }
     }
 
@@ -116,11 +116,15 @@ public class BookPageActivity extends AppCompatActivity {
     }
 
     private void initializeUI(Book book) {
+        setContentView(R.layout.activity_book_page);
+        TextView textView = (TextView) findViewById(R.id.bookNameTextView);
+        Log.d(TAG, "initializeUI: book" + book.getName());
+        textView.setText(book.getName());
+        TextView textPrice = (TextView) findViewById(R.id.shop1PriceTextView);
+        textPrice.setText(book.getPrice().toString());
 
-        bookNameTextView = findViewById(R.id.bookNameTextView);
-        bookNameTextView.setText(book.getName());
+
         //okianPriceTextView.setText(book.getPrice());
-
     }
 
     private void getBookInformationFromDatabase(String bookName) {
